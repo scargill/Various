@@ -19,34 +19,34 @@
 			return '<img style="width:32px; height:32px; vertical-align:middle" src="icons/'+imName+'.png">'
 		}
 			
-	   function wsConnectC() {
-	    	console.log("connect",wsUriC);
-	    	ws = new WebSocket(wsUriC);
-		    ws.onmessage = function(msg) {
-		        var line = "";
-		        console.log(msg.data);
-				var fromPage=JSON.parse(msg.data);
-		        if (fromPage.my_input!="") $("#info1").html(fromPage.my_input); else $("#info1").html("!Empty!");
-		        $("#info2").html(fromPage.my_slider+"c");
-		        $("#info3").html(fromPage.my_switch);
-				$("#my_slider").val(fromPage.my_slider).slider("refresh");
-		        $("#my_switch").val(fromPage.my_switch).flipswitch("refresh");
-				if (fromPage.my_switch=="on") $("#image_holder").html(gIcon("light1")); else $("#image_holder").html(gIcon("light0"));
-		    }
-		    ws.onopen = function() {
-		        $("#status").html("connected");
-		        console.log("connected");
-		    }
-		    ws.onclose = function() {
-		        $("#status").html("not connected");
-		        setTimeout(wsConnectC,1000);
-		    }
-	    }
-			
+		function wsConnectC() {
+		    	console.log("connect",wsUriC);
+		    	ws = new WebSocket(wsUriC);
+			    ws.onmessage = function(msg) {
+			        var line = "";
+			        console.log(msg.data);
+					var fromPage=JSON.parse(msg.data);
+			        if (fromPage.my_input!="") $("#info1").html(fromPage.my_input); else $("#info1").html("!Empty!");
+			        $("#info2").html(fromPage.my_slider+"c");
+			        $("#info3").html(fromPage.my_switch);
+					$("#my_slider").val(fromPage.my_slider).slider("refresh");
+			        $("#my_switch").val(fromPage.my_switch).flipswitch("refresh");
+					if (fromPage.my_switch=="on") $("#image_holder").html(gIcon("light1")); else $("#image_holder").html(gIcon("light0"));
+			    }
+			    ws.onopen = function() {
+			        $("#status").html("connected");
+			        console.log("connected");
+			    }
+			    ws.onclose = function() {
+			        $("#status").html("not connected");
+			        setTimeout(wsConnectC,1000);
+			    }
+		}
+				
 		function sendMessage(){
 			// send message back to page
 			var toPage='{"my_input":"'+$("#my_input").val()+'","my_slider":"'+$("#my_slider").val()+'","my_switch":"'+$("#my_switch").val()+'"}';
-	    	ws.send(toPage);
+		    	ws.send(toPage);
 		}
     </script>
 	
