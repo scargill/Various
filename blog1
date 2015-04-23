@@ -1,0 +1,83 @@
+<html>
+    <head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Simple Display</title>
+		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+        <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+        <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+
+    </head>
+    <script type="text/javascript">
+        var server = window.location.hostname;
+        var topics = {};
+        var wsUriC = "ws://"+server+":1880/myapp";
+		var ws;
+		
+		var light0='<img src="icons/light0.png" alt="someimage"  />';
+		var light1='<img src="icons/light1.png" alt="someimage"  />';
+		
+		function gIcon(imName)
+		{
+			return '<img style="width:32px; height:32px; vertical-align:middle" src="icons/'+imName+'.png">'
+		}
+		
+        function wsConnectC() {
+            console.log("connect",wsUriC);
+            ws = new WebSocket(wsUriC);
+            ws.onmessage = function(msg) {
+                var line = "";
+                console.log(msg.data);
+				var fromPage=JSON.parse(msg.data);
+                if (fromPage.my_input!="") $("#info1").html(fromPage.my_input); else $("#info1").html("!Empty!");
+                $("#info2").html(fromPage.my_slider+"c");
+                $("#info3").html(fromPage.my_switch);
+				$("#my_slider").val(fromPage.my_slider).slider("refresh");
+                $("#my_switch").val(fromPage.my_switch).flipswitch("refresh");
+				if (fromPage.my_switch=="on") $("#image_holder").html(gIcon("light1")); else $("#image_holder").html(gIcon("light0"));
+            }
+            ws.onopen = function() {
+                $("#status").html("connected");
+                console.log("connected");
+            }
+            ws.onclose = function() {
+                $("#status").html("not connected");
+                setTimeout(wsConnectC,1000);
+            }
+        }
+		
+	function sendMessage(){
+	// send message back to page
+	var toPage='{"my_input":"'+$("#my_input").val()+'","my_slider":"'+$("#my_slider").val()+'","my_switch":"'+$("#my_switch").val()+'"}';
+    ws.send(toPage);
+  } // end sendMessage
+  
+  
+    </script>
+	
+	<body onload="wsConnectC();" onunload="ws.disconnect;">
+		<div data-role="page" data-theme="a">
+			<div data-role="header" data-position="inline">
+				<h2>Websockets Test Page</h2>
+			</div>
+			<div data-role="content" data-theme="a">
+				<h2>Temperature Display</h2>
+				<div id="status">status unknown</div>	
+				<input id="my_input" />			
+				<div id="info1">!Empty!</div>
+				<hr/>
+				<div id="info2">0</div>
+				<hr/>
+				<div id="info3">0</div>
+				<hr/>
+				<label for="my_slider">Input slider:</label>
+				<input type="range" id="my_slider" value="60" min="0" max="100" data-theme="a"  onMouseRelease="sendMessage()"/>	
+				<select name="my_switch" id="my_switch" data-role="flipswitch" onchange="sendMessage()" data-theme="a">
+					<option value="off">Off</option>
+					<option value="on">On</option>
+				</select> <span id="image_holder"></span>
+				<input type="button" value="Update" onClick="sendMessage()" />
+				
+			</div>
+		</div>		
+    </body>
+</html>
